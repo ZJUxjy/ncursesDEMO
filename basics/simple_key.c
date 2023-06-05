@@ -1,7 +1,6 @@
 #include <ncurses.h>
 #include <stdio.h>
 
-
 #define WIDTH 30
 #define HEIGHT 10
 
@@ -24,13 +23,15 @@ int main() {
   clear();
   noecho();
   cbreak(); /* Line buffering disabled. pass on everything */
+  curs_set(2);
   startx = (80 - WIDTH) / 2;
   starty = (24 - HEIGHT) / 2;
 
   menu_win = newwin(HEIGHT, WIDTH, starty, startx);
   keypad(menu_win, TRUE);
   mvprintw(0, 0,
-           "Use arrow keys to go up and down, Press enter to select a choice");
+           "Use arrow keys to go up and down,"
+           " Press enter to select a choice");
   refresh();
   print_menu(menu_win, highlight);
   while (1) {
@@ -82,8 +83,9 @@ void print_menu(WINDOW *menu_win, int highlight) {
       wattron(menu_win, A_REVERSE);
       mvwprintw(menu_win, y, x, "%s", choices[i]);
       wattroff(menu_win, A_REVERSE);
-    } else
+    } else {
       mvwprintw(menu_win, y, x, "%s", choices[i]);
+    }
     ++y;
   }
   wrefresh(menu_win);

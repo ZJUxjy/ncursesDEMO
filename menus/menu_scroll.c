@@ -80,6 +80,9 @@ int main() {
     case KEY_PPAGE:
       menu_driver(my_menu, REQ_SCR_UPAGE);
       break;
+    case 10:
+      menu_driver(my_menu, REQ_LAST_ITEM);
+      break;
     }
     wrefresh(my_menu_win);
   }

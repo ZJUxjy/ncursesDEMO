@@ -1,19 +1,24 @@
 #include <panel.h>
 
+// 定义了一个结构体，表示窗口数据
 typedef struct _PANEL_DATA {
-  int x, y, w, h;
-  char label[80];
-  int label_color;
-  PANEL *next;
+  int x, y, w, h;  // 窗口的位置和大小
+  char label[80];  // 窗口的标签
+  int label_color; // 窗口标签的颜色
+  PANEL *next;     // 指向下一个窗口的指针
 } PANEL_DATA;
 
-#define NLINES 10
-#define NCOLS 40
+#define NLINES 10 // 窗口的行数
+#define NCOLS 40  // 窗口的列数
 
+// 初始化窗口
 void init_wins(WINDOW **wins, int n);
+// 显示窗口
 void win_show(WINDOW *win, char *label, int label_color);
+// 在窗口中间打印一行文本
 void print_in_middle(WINDOW *win, int starty, int startx, int width,
                      char *string, chtype color);
+// 设置窗口的用户数据指针
 void set_user_ptrs(PANEL **panels, int n);
 
 int main() {
@@ -26,43 +31,47 @@ int main() {
   int newx, newy, neww, newh;
   int size = FALSE, move = FALSE;
 
-  /* Initialize curses */
+  // 初始化 curses 库
   initscr();
   start_color();
   cbreak();
   noecho();
   keypad(stdscr, TRUE);
 
-  /* Initialize all the colors */
+  // 初始化所有颜色对
   init_pair(1, COLOR_RED, COLOR_BLACK);
   init_pair(2, COLOR_GREEN, COLOR_BLACK);
   init_pair(3, COLOR_BLUE, COLOR_BLACK);
   init_pair(4, COLOR_CYAN, COLOR_BLACK);
 
+  // 初始化窗口
   init_wins(my_wins, 3);
 
-  /* Attach a panel to each window */   /* Order is bottom up */
-  my_panels[0] = new_panel(my_wins[0]); /* Push 0, order: stdscr-0 */
-  my_panels[1] = new_panel(my_wins[1]); /* Push 1, order: stdscr-0-1 */
-  my_panels[2] = new_panel(my_wins[2]); /* Push 2, order: stdscr-0-1-2 */
+  // 为每个窗口创建一个面板，并设置它们的用户数据指针
+  my_panels[0] = new_panel(my_wins[0]); // 0 号窗口在最底下
+  my_panels[1] = new_panel(my_wins[1]);
+  my_panels[2] = new_panel(my_wins[2]); // 2 号窗口在最上面
 
   set_user_ptrs(my_panels, 3);
-  /* Update the stacking order. 2nd panel will be on top */
+
+  // 更新面板的叠放顺序，使得最上面的窗口是 2 号窗口
   update_panels();
 
-  /* Show it on the screen */
+  // 在屏幕上显示提示信息
   attron(COLOR_PAIR(4));
   mvprintw(LINES - 3, 0, "Use 'm' for moving, 'r' for resizing");
   mvprintw(LINES - 2, 0, "Use tab to browse through the windows (F1 to Exit)");
   attroff(COLOR_PAIR(4));
   doupdate();
 
+  // 记录最上面的窗口的位置和大小
   stack_top = my_panels[2];
   top = (PANEL_DATA *)panel_userptr(stack_top);
   newx = top->x;
   newy = top->y;
   neww = top->w;
   newh = top->h;
+
   while ((ch = getch()) != KEY_F(1)) {
     switch (ch) {
     case 9: /* Tab */
@@ -165,6 +174,10 @@ void init_wins(WINDOW **wins, int n) {
   x = 10;
   for (i = 0; i < n; ++i) {
     wins[i] = newwin(NLINES, NCOLS, y, x);
+    if (wins[i] == NULL) {
+      fprintf(stderr, "Unable to create window number %d\n", i + 1);
+      exit(1);
+    }
     sprintf(label, "Window Number %d", i + 1);
     win_show(wins[i], label, i + 1);
     y += 3;

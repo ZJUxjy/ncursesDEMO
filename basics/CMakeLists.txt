@@ -17,6 +17,7 @@ foreach(SRC_FILE ${SRC_FILES})
         ${SRC_FILE_NAME_WE}
 
         ncurses
+        panel
     )
 endforeach(SRC_FILE ${SRC_FILES})
 
